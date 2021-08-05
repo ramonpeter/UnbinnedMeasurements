@@ -9,11 +9,11 @@ from MoINN.modules.subnetworks import DenseSubNet
 from utils import train_density_estimation, plot_loss, shuffle, plot_tau_ratio
 
 # import data
-tau1_gen = np.reshape(np.load("data/tau1s_Pythia_gen.npy"), (-1,1))
-tau2_gen = np.reshape(np.load("data/tau2s_Pythia_gen.npy"), (-1,1))
+tau1_gen = np.reshape(np.load("../data/tau1s_Pythia_gen.npy"), (-1,1))
+tau2_gen = np.reshape(np.load("../data/tau2s_Pythia_gen.npy"), (-1,1))
 
-tau1_sim = np.reshape(np.load("data/tau1s_Pythia_sim.npy"), (-1,1))
-tau2_sim = np.reshape(np.load("data/tau2s_Pythia_sim.npy"), (-1,1))
+tau1_sim = np.reshape(np.load("../data/tau1s_Pythia_sim.npy"), (-1,1))
+tau2_sim = np.reshape(np.load("../data/tau2s_Pythia_sim.npy"), (-1,1))
 
 train_gen, test_gen = np.split(np.concatenate([tau1_gen,tau2_gen], axis=-1), 2)
 train_sim, test_sim = np.split(np.concatenate([tau1_sim,tau2_sim], axis=-1), 2)
