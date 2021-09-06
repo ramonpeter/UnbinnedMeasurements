@@ -6,7 +6,7 @@ import sys
 from cflow import ConditionalFlow
 from MoINN.modules.subnetworks import DenseSubNet
 
-from utils import train_density_estimation, plot_loss, shuffle, plot_tau_ratio
+from utils import train_density_estimation, plot_loss, shuffle, plot_tau_ratio, normalize
 
 # import data
 tau1_gen = np.reshape(np.load("../data/tau1s_Pythia_gen.npy"), (-1,1))
@@ -20,20 +20,20 @@ train_sim, test_sim = np.split(np.concatenate([tau1_sim,tau2_sim], axis=-1), 2)
 
 # Get the flow
 meta = {
-        "units": 20,
-        "layers": 2,
+        "units": 64,
+        "layers": 3,
         "initializer": "glorot_uniform",
         "activation": "leakyrelu",
         }
 
-cflow = ConditionalFlow(dims_in=[2], dims_c=[[2]], n_blocks=4, subnet_meta=meta, subnet_constructor=DenseSubNet)
+cflow = ConditionalFlow(dims_in=[2], dims_c=[[2]], n_blocks=10, subnet_meta=meta, subnet_constructor=DenseSubNet)
 
 
 # train the network
-EPOCHS = 200
+EPOCHS = 50
 BATCH_SIZE = 1000
 LR = 1e-3
-DECAY_RATE=0.1
+DECAY_RATE=0.01
 ITERS = len(train_gen)//BATCH_SIZE
 DECAY_STEP=ITERS
 
@@ -72,4 +72,4 @@ plot_loss(train_losses, name="Log-likelihood", log_axis=False)
 detector = tf.constant(test_sim, dtype=tf.float32)
 unfold_gen = cflow.sample(int(5e5),[detector])
 
-plot_tau_ratio(test_gen, unfold_gen)
+plot_tau_ratio(test_gen, unfold_gen, detector)

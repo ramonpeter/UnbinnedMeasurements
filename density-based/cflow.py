@@ -37,7 +37,7 @@ class ConditionalFlow(tf.keras.Model):
 
         layer_list = []
         for i in range(n_blocks):
-            layer_list.append(AllInOneBlock(dims_in, dims_c=dims_c, permute_soft=True, subnet_meta=subnet_meta, subnet_constructor=subnet_constructor))
+            layer_list.append(AllInOneBlock(dims_in, dims_c=dims_c, permute_soft=False, subnet_meta=subnet_meta, subnet_constructor=subnet_constructor))
         self.layer_list = layer_list
 
     def distribution_log_prob(self, inputs):
@@ -62,7 +62,7 @@ class ConditionalFlow(tf.keras.Model):
         shape = (n_samples,) + tuple(self.dims_in)
         z = tf.random.normal(shape)
         y = z
-        for layer in self.layer_list:
+        for layer in self.layer_list[::-1]:
             y = layer(y, c=c, rev=True, jac=False)
 
         return y

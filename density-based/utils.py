@@ -24,6 +24,11 @@ def train_density_estimation(flow, optimizer, batch_gen, batch_sim):
 
     return loss
 
+def normalize(data):
+    std = np.std(data)
+    data = data/std
+    return data
+
 def shuffle(gen, sim):
     s = np.arange(gen.shape[0])
     np.random.shuffle(s)
@@ -49,7 +54,7 @@ def plot_loss(loss, log_dir = ".", name="", log_axis=True):
     plt.close('all')
 
 
-def plot_tau_ratio(true, gen):
+def plot_tau_ratio(true, gen, detector):
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
     plt.rc('text.latex', preamble=r'\usepackage{amsmath}')
@@ -63,12 +68,15 @@ def plot_tau_ratio(true, gen):
 
     ratio_true = true[:,1]/true[:,0]
     ratio_gen = gen[:,1]/gen[:,0]
+    ratio_detector = detector[:,1]/detector[:,0]
 
     y_t, x_t = np.histogram(ratio_true, BINS, range=[0,1.2])
     y_p, x_p = np.histogram(ratio_gen, BINS, range=[0,1.2])
+    y_d, x_d = np.histogram(ratio_detector, BINS, range=[0,1.2])
 
     line_dat, = axs[0].step(x_t[:BINS], y_t, dcolor, label='Truth', linewidth=1.0, where='mid')
     line_gen, = axs[0].step(x_p[:BINS], y_p, gcolor, label='cINN', linewidth=1.0, where='mid')
+    line_det, = axs[0].step(x_d[:BINS], y_d, 'green', label='Detector', linewidth=1.0, where='mid')
 
     for j in range(2):
         for label in ( [axs[j].yaxis.get_offset_text()] +
@@ -78,10 +86,10 @@ def plot_tau_ratio(true, gen):
     axs[0].set_ylabel(r'Normalized Cross Section', fontsize = FONTSIZE)
 
     axs[0].legend(
-        [line_gen, line_dat],
-        ['cINN', 'Truth'],
+        [line_gen, line_dat, line_det],
+        ['cINN', 'Truth', 'Detector'],
         #title = "GAN vs Data",
-        loc='upper right',
+        loc='upper left',
         prop={'size':(FONTSIZE-2)},
         frameon=False)
 
