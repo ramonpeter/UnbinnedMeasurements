@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 def train_density_estimation(flow, optimizer, batch_gen, batch_sim):
     """
     Train function for density estimation normalizing flows.
-    :param distribution: TensorFlow distribution, e.g. tf.TransformedDistribution.
     :param optimizer: TensorFlow keras optimizer, e.g. tf.keras.optimizers.Adam(..)
     :param batch: Batch of the train data.
     :return: loss.
@@ -24,15 +23,28 @@ def train_density_estimation(flow, optimizer, batch_gen, batch_sim):
 
     return loss
 
-def normalize(data):
-    std = np.std(data)
-    data = data/std
-    return data
+# class NormalizeData():
+#     """Defines the conditional flow network"""
 
-def shuffle(gen, sim):
-    s = np.arange(gen.shape[0])
-    np.random.shuffle(s)
-    return gen[s], sim[s]
+#     def __init__(
+#         self,
+#         dims_in,
+#         dims_c,
+#         n_blocks,
+#         subnet_meta: Dict = None,
+#         subnet_constructor: callable = None,
+#         name="cflow",
+#         **kwargs,
+#     ):
+
+#     def fit(self, data):
+
+
+#     def normalize(data):
+#         std = np.std(data)
+#         data = data/std
+#         return data
+
 
 def plot_loss(loss, log_dir = ".", name="", log_axis=True):
     """Plot the traings curve"""
@@ -54,7 +66,7 @@ def plot_loss(loss, log_dir = ".", name="", log_axis=True):
     plt.close('all')
 
 
-def plot_tau_ratio(true, gen, detector):
+def plot_tau_ratio(true, gen, detector, name='tau_ratio'):
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
     plt.rc('text.latex', preamble=r'\usepackage{amsmath}')
@@ -108,5 +120,5 @@ def plot_tau_ratio(true, gen, detector):
     axs[1].axhline(y=1,linewidth=1, linestyle='--', color='grey')
     axs[1].set_xlabel(r'$N$-subjettiness ratio $\tau_{21}$', fontsize = FONTSIZE)
 
-    fig.savefig('tau_ratio.pdf', format='pdf')
+    fig.savefig(f'{name}.pdf', format='pdf')
     plt.close()
