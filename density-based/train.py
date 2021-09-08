@@ -43,7 +43,7 @@ DECAY_STEP=ITERS
 
 #Prepare the tf.dataset
 train_dataset = tf.data.Dataset.from_tensor_slices((train_gen, train_sim))
-train_dataset = train_dataset.shuffle(buffer_size=500000).batch(BATCH_SIZE)
+train_dataset = train_dataset.shuffle(buffer_size=500000).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
 
 
 lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(LR, DECAY_STEP, DECAY_RATE)
