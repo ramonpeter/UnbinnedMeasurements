@@ -122,3 +122,71 @@ def plot_tau_ratio(true, gen, detector, name='tau_ratio'):
 
     fig.savefig(f'{name}.pdf', format='pdf')
     plt.close()
+
+def plot_pull(true, gen, detector, name='tau_ratio'):
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    plt.rc('text.latex', preamble=r'\usepackage{amsmath}')
+    BINS = 50
+    gcolor = '#3b528b'
+    dcolor = '#e41a1c'
+    FONTSIZE = 16
+
+    fig, axs = plt.subplots(1, 1)
+    plt.subplots_adjust(left=0.15, right=0.95, top=0.92, bottom=0.15)
+
+    ratio_true = true[:,1]/true[:,0]
+    ratio_gen = gen[:,1]/gen[:,0]
+    ratio_detector = detector[:,1]/detector[:,0]
+
+    y_t, x_t = np.histogram(ratio_detector-ratio_true, BINS, range=[-1.2,1.2])
+    y_p, x_p = np.histogram(ratio_detector-ratio_gen, BINS, range=[-1.2,1.2])
+
+    line_dat, = axs.step(x_t[:BINS], y_t, dcolor, label='Truth', linewidth=1.0, where='mid')
+    line_gen, = axs.step(x_p[:BINS], y_p, gcolor, label='cINN', linewidth=1.0, where='mid')
+
+   
+    for label in ( [axs.yaxis.get_offset_text()] +
+                    axs.get_xticklabels() + axs.get_yticklabels()):
+        label.set_fontsize(FONTSIZE-2)
+
+    axs.set_ylabel(r'Normalized', fontsize = FONTSIZE)
+
+    axs.legend(
+        [line_gen, line_dat],
+        ['cINN', 'Truth'],
+        #title = "GAN vs Data",
+        loc='upper left',
+        prop={'size':(FONTSIZE-2)},
+        frameon=False)
+
+    # lower panel
+    axs.set_xlabel(r'Pull $N$-subjettiness ratio $\tau_{21}$', fontsize = FONTSIZE)
+
+    fig.savefig(f'{name}.pdf', format='pdf')
+    plt.close()
+
+def plot_calibration(y_inn, y_data, name = r'\tau_{21}', n_quantiles = 100):
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    plt.rc('text.latex', preamble=r'\usepackage{amsmath}')
+
+    y_inn_events = y_inn[:,1,:]/y_inn[:,0,:]
+    y_data_events = y_data[:,1]/y_data[:,0]
+    
+    netcolor = '#e41a1c'
+    FONTSIZE = 16
+
+    fig, axs = plt.subplots(1, 1)
+    plt.subplots_adjust(left=0.15, right=0.95, top=0.92, bottom=0.15)
+    #samples_sorted = np.sort(y_inn_events, axis = 1)
+    quantiles = np.sum(y_inn_events<np.ones(y_inn_events.shape) *y_data_events[:, np.newaxis], axis = -1)
+    calibration = np.sum(np.arange(n_quantiles) * np.ones((quantiles.shape[0], n_quantiles)) < np.ones((quantiles.shape[0], n_quantiles)) * quantiles[:, np.newaxis], axis = 0)
+    calibration_x = np.arange(n_quantiles)/n_quantiles
+    calibration_y = calibration/quantiles.shape[0]
+    #Histogram
+    axs.step(calibration_x, calibration_y, label="cINN", color=netcolor, linewidth=1.0, where='mid')
+    axs.axline((0, 1), (1, 0), linewidth=1, linestyle='--', color='grey')
+    axs.legend(loc='lower left', frameon=False)
+    fig.savefig(f'calibration.pdf', bbox_inches='tight', format='pdf', pad_inches=0.05)
+    plt.close()

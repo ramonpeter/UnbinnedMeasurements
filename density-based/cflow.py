@@ -67,3 +67,18 @@ class ConditionalFlow(tf.keras.Model):
             y = layer(y, c=c, rev=True, jac=False)
 
         return y
+
+    def prob_sample(self, n_samples, unfoldings, c=None):
+        shape = (n_samples,) + tuple(self.dims_c[0])
+
+        output = []
+        for _ in range(unfoldings):
+            z = tf.random.normal(shape)
+            y = z
+            for layer in self.layer_list[::-1]:
+                y = layer(y, c=c, rev=True, jac=False)
+            y = tf.expand_dims(y, axis=-1)
+            output.append(y)
+        
+        sample = tf.concat(output, axis=-1)
+        return sample
